@@ -268,7 +268,7 @@ http://go-ddd-layout.com/swagger/index.html
 
 ## 文章
 
-这里写了一篇关于这个项目的文章
+在[这里](https://juejin.cn/post/7298160530292703244)写了一篇关于这个项目的文章
 
 ## 项目扩展
 

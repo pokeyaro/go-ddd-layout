@@ -266,7 +266,7 @@ http://go-ddd-layout.com/swagger/index.html
 
 ## Other
 
-An article was written about this project [here]()
+An article was written about this project [here](https://juejin.cn/post/7298160530292703244)
 
 ## Project Extension
 

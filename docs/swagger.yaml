@@ -1,0 +1,533 @@
+definitions:
+  response.BaseResponse-any:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+  response.BaseResponse-sys_Menus:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/sys.MenuItem'
+        type: array
+      msg:
+        type: string
+    type: object
+  response.BaseResponse-sys_TokenResp:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/sys.TokenResp'
+      msg:
+        type: string
+    type: object
+  response.BaseResponse-user_LoginPasswd:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/user.LoginPasswd'
+      msg:
+        type: string
+    type: object
+  response.BaseResponse-user_User:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/user.User'
+      msg:
+        type: string
+    type: object
+  response.BaseResponse-user_Userinfo:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/user.Userinfo'
+      msg:
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      detail:
+        type: string
+      error:
+        type: string
+    type: object
+  sys.MenuChild:
+    properties:
+      meta:
+        $ref: '#/definitions/sys.MenuMeta'
+      name:
+        type: string
+      path:
+        type: string
+    type: object
+  sys.MenuItem:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/sys.MenuChild'
+        type: array
+      meta:
+        $ref: '#/definitions/sys.MenuMeta'
+      name:
+        type: string
+      path:
+        type: string
+    type: object
+  sys.MenuMeta:
+    properties:
+      hide_in_menu:
+        type: boolean
+      icon:
+        type: string
+      img:
+        type: string
+      locale:
+        type: string
+      order:
+        type: integer
+      placeholder:
+        type: boolean
+      requires_auth:
+        type: boolean
+      roles:
+        items:
+          type: string
+        type: array
+      svg:
+        type: string
+      top_level:
+        type: boolean
+    type: object
+  sys.TokenResp:
+    properties:
+      access_token:
+        type: string
+    type: object
+  user.LoginPasswd:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  user.User:
+    properties:
+      avatar:
+        type: string
+      company:
+        type: string
+      ctime:
+        type: string
+      department:
+        type: string
+      email:
+        type: string
+      employee_id:
+        type: integer
+      employee_type:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+      nickname:
+        type: string
+      password:
+        type: string
+      uid:
+        type: integer
+      username:
+        type: string
+      utime:
+        type: string
+      uuid:
+        type: string
+      work_city:
+        type: string
+      work_country:
+        type: string
+    type: object
+  user.Userinfo:
+    properties:
+      avatar:
+        type: string
+      city:
+        type: string
+      company:
+        type: string
+      email:
+        type: string
+      emp_id:
+        type: integer
+      name:
+        type: string
+      organization:
+        type: string
+      region:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /:
+    get:
+      description: Basic example page
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+      summary: Hello, World
+      tags:
+      - Example
+  /sys/login:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: User login to obtain authentication token
+      parameters:
+      - description: Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.BaseResponse-sys_TokenResp'
+        "400":
+          description: BadRequest
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Login to the system
+      tags:
+      - No Authentication Required
+  /sys/logout:
+    post:
+      description: User logs out of the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.BaseResponse-any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Logout from the system
+      tags:
+      - Authentication Required
+  /sys/menu:
+    get:
+      description: Get user menu bar
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.BaseResponse-sys_Menus'
+      security:
+      - ApiKeyAuth: []
+      summary: Menu bar
+      tags:
+      - Authentication Required
+  /user:
+    get:
+      description: Get user list (This API is only available to administrators)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.BaseResponse-any'
+        "400":
+          description: BadRequest
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: User list
+      tags:
+      - Authentication Required
+    post:
+      consumes:
+      - application/json
+      description: Create a new user (This API is only available to administrators)
+      parameters:
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.BaseResponse-any'
+        "400":
+          description: BadRequest
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create user
+      tags:
+      - Authentication Required
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user (This API is only available to administrators)
+      parameters:
+      - description: User ID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.BaseResponse-any'
+        "400":
+          description: BadRequest
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete user
+      tags:
+      - Authentication Required
+    get:
+      description: View profile information of a specific user (This API is only available
+        to administrators)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.BaseResponse-user_User'
+        "400":
+          description: BadRequest
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: View user profile
+      tags:
+      - Authentication Required
+    patch:
+      consumes:
+      - application/json
+      description: Update partial profile information of a user (This API is only
+        available to administrators)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.BaseResponse-any'
+        "400":
+          description: BadRequest
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user profile
+      tags:
+      - Authentication Required
+    put:
+      consumes:
+      - application/json
+      description: Update all profile information of a user (This API is only available
+        to administrators)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Request successful
+          schema:
+            $ref: '#/definitions/response.BaseResponse-any'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user profile
+      tags:
+      - Authentication Required
+  /user/{id}/password:
+    post:
+      description: Update user's password
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.BaseResponse-user_LoginPasswd'
+        "400":
+          description: BadRequest
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user password
+      tags:
+      - Authentication Required
+  /user/info:
+    get:
+      description: View personal user information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.BaseResponse-user_Userinfo'
+        "400":
+          description: BadRequest
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: View user information
+      tags:
+      - Authentication Required
+securityDefinitions:
+  ApiKeyAuth:
+    description: 'Enter the token with the `Bearer: ` prefix, e.g. "Bearer abcde12345".'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

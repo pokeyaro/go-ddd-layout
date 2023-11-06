@@ -1,0 +1,70 @@
+version: "3.9"
+
+# Docker-compose 使用自定义网络
+# 手动创建：docker network create custom-local-net --driver=bridge --subnet=192.168.100.0/24
+# 查看列表：docker network ls
+# 删除网络：docker network rm custom-local-net
+# 查看详情：docker network inspect custom-local-net
+networks:
+  custom-local-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24
+          gateway: 192.168.100.1
+
+#    external:
+#      true
+
+services:
+  db:
+    image: mysql:latest
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: mydb
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./infrastructure/database/data.sql:/docker-entrypoint-initdb.d/data.sql
+    networks:
+      - custom-local-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+    image: go-ddd
+    container_name: go-app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - GO111MODULE=on
+    volumes:
+      - .:/go/src/app
+    depends_on:
+      - db
+    networks:
+      - custom-local-net
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-web
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app
+    networks:
+      - custom-local-net
